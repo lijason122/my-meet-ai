@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { OctagonAlertIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
@@ -22,6 +24,8 @@ const formSchema = z.object({
 });
 
 export const SignInView = () => {
+    const router = useRouter();
+
     const [error, setError] = useState<string | null>(null);
     const [pending, setPending] = useState(false);
 
@@ -46,6 +50,7 @@ export const SignInView = () => {
             {
                 onSuccess: () => {
                     setPending(false);
+                    router.push("/");
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -135,10 +140,10 @@ export const SignInView = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <Button variant="outline" type="button" className="w-full" onClick={() => onSocial("google")} disabled={pending}>
-                                        Google
+                                        <FaGoogle />
                                     </Button>
                                     <Button variant="outline" type="button" className="w-full" onClick={() => onSocial("github")} disabled={pending}>
-                                        GitHub
+                                        <FaGithub />
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
