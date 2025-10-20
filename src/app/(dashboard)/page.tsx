@@ -15,4 +15,4 @@ const page = async () => {
   return <HomeView />
 };
 
-export default page
+export default page;
