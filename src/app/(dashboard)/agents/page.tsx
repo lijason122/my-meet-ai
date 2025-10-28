@@ -1,6 +1,6 @@
 import { getQueryClient, trpc } from "@/trpc/server";
 import { AgentsView, AgentsViewError, AgentsViewLoading } from "./ui/views/agents-view";
-import { AgentsListHeader } from "./ui/views/components/agents-list-header";
+import { AgentsListHeader } from "../../../modules/agents/components/agents-list-header";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
