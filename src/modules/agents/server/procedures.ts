@@ -1,4 +1,4 @@
-import { agentsInsertSchema } from "@/app/(dashboard)/agents/schemas";
+import { agentsInsertSchema } from "@/modules/agents/schemas";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
 import { agents } from "@/db/schema";
