@@ -1,9 +1,9 @@
-import { AgentGetOne } from "@/modules/agents/server/types";
+import { AgentGetOne } from "@/modules/agents/types";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { agentsInsertSchema } from "../../../app/(dashboard)/agents/schemas";
+import { agentsInsertSchema } from "@/modules/agents/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { GeneratedAvatar } from "@/components/generated-avatar";
