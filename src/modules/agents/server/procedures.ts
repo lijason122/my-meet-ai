@@ -1,4 +1,4 @@
-import { agentsInsertSchema } from "@/modules/agents/schemas";
+import { agentsInsertSchema, agentsUpdateSchema } from "@/modules/agents/schemas";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
 import { agents } from "@/db/schema";
@@ -74,5 +74,23 @@ export const agentsRouter = createTRPCRouter({
             }
 
             return removedAgent;
+    }),
+    update: protectedProcedure.input(agentsUpdateSchema).mutation(async ({ ctx, input }) => {
+        const [updatedAgent] = await db
+            .update(agents)
+            .set(input)
+            .where(
+                and(
+                    eq(agents.id, input.id),
+                    eq(agents.userId, ctx.auth.user.id),
+                ),
+            )
+            .returning();
+
+            if (!updatedAgent) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Agent not found" });
+            }
+
+            return updatedAgent;
     }),
 });
