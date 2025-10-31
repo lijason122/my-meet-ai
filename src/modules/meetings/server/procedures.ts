@@ -1,3 +1,4 @@
+import { meetingsInsertSchema } from "../schemas";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
 import { meetings } from "@/db/schema";
@@ -7,6 +8,14 @@ import { and, count, desc, eq, getTableColumns, ilike } from "drizzle-orm";
 import z from "zod";
 
 export const meetingsRouter = createTRPCRouter({
+    create: protectedProcedure.input(meetingsInsertSchema).mutation(async ({ input, ctx }) => {
+            const [createdMeeting] = await db.insert(meetings).values({
+                ...input,
+                userId: ctx.auth.user.id,
+            }).returning();
+    
+            return createdMeeting;
+    }),
     getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
         const [existingMeeting] = await db.select({ ...getTableColumns(meetings) })
             .from(meetings)
