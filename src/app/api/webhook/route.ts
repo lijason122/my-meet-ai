@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import {
     CallEndedEvent,
-    // MessageNewEvent,
+    CallRecordingReadyEvent,
     CallTranscriptionReadyEvent,
     CallSessionParticipantLeftEvent,
     CallSessionStartedEvent,
@@ -104,6 +104,13 @@ export async function POST(req: NextRequest) {
         if (!updatedMeeting) {
             return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
         }
+    } else if (eventType === "call.recording_ready") {
+        const event = payload as CallRecordingReadyEvent;
+        const meetingId = event.call_cid.split(":")[1];
+
+        await db.update(meetings).set({
+            recordingUrl: event.call_recording.url
+        }).where(eq(meetings.id, meetingId));
     };
 
     return NextResponse.json({ status: "ok" });
