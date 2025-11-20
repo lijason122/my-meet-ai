@@ -40,7 +40,7 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   return next({ ctx: { ...ctx, auth: session }});
 });
 
-export const premiumProcedure = (entity: "meetings" | "agents") => {
+export const premiumProcedure = (entity: "meetings" | "agents") =>
   protectedProcedure.use(async ({ ctx, next }) => {
     const customer = await polarClient.customers.getStateExternal({
       externalId: ctx.auth.user.id,
@@ -81,6 +81,5 @@ export const premiumProcedure = (entity: "meetings" | "agents") => {
       });
     }
 
-    return next({ ctx: { ...ctx, customer }});
-  });
-}
+    return next({ ctx: { ...ctx, customer } });
+});
