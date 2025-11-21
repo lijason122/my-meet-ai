@@ -1,13 +1,9 @@
 "use client";
 
-import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
-import { DataTable } from "@/components/data-table";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { DataPagination } from "@/components/data-pagination";
 import { authClient } from "@/lib/auth-client";
 import { PricingCard } from "../components/pricing-card";
 
