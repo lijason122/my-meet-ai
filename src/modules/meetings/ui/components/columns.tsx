@@ -31,7 +31,7 @@ const statusColorMap = {
   processing: "bg-gray-300/20 text-gray-800 border-gray-800/5",
 }
 
-export const columns: ColumnDef<MeetingGetMany>[] = [
+export const columns: ColumnDef<MeetingGetMany[number]>[] = [
   {
     accessorKey: "name",
     header: "Meeting Name",
