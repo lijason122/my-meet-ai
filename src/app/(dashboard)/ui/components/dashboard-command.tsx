@@ -56,6 +56,7 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
                             }}
                             key={agent.id}
                         >
+                            <GeneratedAvatar seed={agent.name} variant="botttsNeutral" className="size-5" />
                             {agent.name}
                         </CommandItem>
                     ))}
