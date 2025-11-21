@@ -9,7 +9,7 @@ const page = async () => {
   });
 
   if (!session) {
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 
   return <HomeView />

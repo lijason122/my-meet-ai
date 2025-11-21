@@ -22,7 +22,7 @@ const Page = async ({ searchParams }: Props) => {
     });
 
     if (!session) {
-        redirect("/auth/sign-in");
+        redirect("/sign-in");
     }
 
     const queryClient = getQueryClient();
