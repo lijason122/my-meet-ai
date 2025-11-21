@@ -5,7 +5,6 @@ import { VideoIcon } from "lucide-react";
 
 interface Props {
     meetingId: string;
-    onCancelMeeting: () => void;
 }
 
 export const UpcomingState = ({ meetingId }: Props) => {
