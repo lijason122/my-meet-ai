@@ -78,24 +78,15 @@ export async function POST(req: NextRequest) {
         }
 
         const call = streamVideo.video.call("default", meetingId);
-        
-        // Connect OpenAI agent with instructions
-        // Pass instructions during connection to ensure they're set before the session starts processing
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
-            // @ts-expect-error - instructions parameter may not be in type definitions but is supported
-            instructions: existingAgent.instructions,
         });
-        
-        // Also update session to ensure instructions are set (in case connectOpenAi doesn't support it)
-        // This ensures instructions are applied even if the parameter above isn't supported
-        if (existingAgent.instructions && existingAgent.instructions.trim()) {
-            await realtimeClient.updateSession({
-                instructions: existingAgent.instructions,
-            });
-        }
+
+        realtimeClient.updateSession({
+            instructions: "Your name is Peter, and your favorite fruit is apple.",
+        });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
@@ -166,7 +157,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        // if (userId !== existingAgent.id) {
+        if (userId !== existingAgent.id) {
             const instructions = `
                 You are an AI assistant helping the user revisit a recently completed meeting.
                 Below is a summary of the meeting, generated from the transcript:
@@ -227,7 +218,7 @@ export async function POST(req: NextRequest) {
                     image: avatarUrl,
                 },
             });
-        // }
+        }
     };
 
     return NextResponse.json({ status: "ok" });
