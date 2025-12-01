@@ -79,9 +79,9 @@ export async function POST(req: NextRequest) {
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
-
+        console.log(existingAgent.instructions)
         realtimeClient.updateSession({
-            instructions: existingAgent.instructions,
+            instructions: `You are a friendly customer support agent named Nova. Help customers with questions and create support tickets when needed.`,
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        // if (userId !== existingAgent.id) {
+        if (userId !== existingAgent.id) {
             const instructions = `
                 You are an AI assistant helping the user revisit a recently completed meeting.
                 Below is a summary of the meeting, generated from the transcript:
@@ -214,7 +214,7 @@ export async function POST(req: NextRequest) {
                     image: avatarUrl,
                 },
             });
-        // }
+        }
     };
 
     return NextResponse.json({ status: "ok" });
