@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        if (userId !== existingAgent.id) {
+        // if (userId !== existingAgent.id) {
             const instructions = `
                 You are an AI assistant helping the user revisit a recently completed meeting.
                 Below is a summary of the meeting, generated from the transcript:
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
                     image: avatarUrl,
                 },
             });
-        }
+        // }
     };
 
     return NextResponse.json({ status: "ok" });
