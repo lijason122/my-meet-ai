@@ -78,14 +78,24 @@ export async function POST(req: NextRequest) {
         }
 
         const call = streamVideo.video.call("default", meetingId);
+        
+        // Connect OpenAI agent with instructions
+        // Pass instructions during connection to ensure they're set before the session starts processing
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
-        });
-        await realtimeClient.updateSession({
+            // @ts-expect-error - instructions parameter may not be in type definitions but is supported
             instructions: existingAgent.instructions,
         });
+        
+        // Also update session to ensure instructions are set (in case connectOpenAi doesn't support it)
+        // This ensures instructions are applied even if the parameter above isn't supported
+        if (existingAgent.instructions && existingAgent.instructions.trim()) {
+            await realtimeClient.updateSession({
+                instructions: existingAgent.instructions,
+            });
+        }
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
