@@ -79,9 +79,9 @@ export async function POST(req: NextRequest) {
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
-
+        console.log(existingAgent.instructions)
         realtimeClient.updateSession({
-            instructions: existingAgent.instructions,
+            instructions: `You are a friendly customer support agent named Nova. Help customers with questions and create support tickets when needed.`,
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
