@@ -76,13 +76,12 @@ export async function POST(req: NextRequest) {
         if (!existingAgent) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
-        const agentUserId = `agent-${meetingId}-${Date.now()}`;
 
         const call = streamVideo.video.call("default", meetingId);
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId,
+            agentUserId: existingAgent.id,
         });
 
         await realtimeClient.updateSession({
@@ -90,6 +89,8 @@ export async function POST(req: NextRequest) {
                 Your name is Peter, and your favorite fruit is apple.
             `,
         });
+
+        await realtimeClient.sendUserMessageContent([{ type: 'input_text', text: 'Hi Peter! What is 9 + 10?' }]);
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
