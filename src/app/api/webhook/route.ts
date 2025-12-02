@@ -76,18 +76,19 @@ export async function POST(req: NextRequest) {
         if (!existingAgent) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
+        const agentUserId = `agent-${meetingId}-${Date.now()}`;
 
         const call = streamVideo.video.call("default", meetingId);
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.id,
+            agentUserId,
         });
 
-        realtimeClient.on("session.created", () => {
-            realtimeClient.updateSession({
-                instructions: existingAgent.instructions,
-            });
+        await realtimeClient.updateSession({
+            instructions: `
+                Your name is Peter, and your favorite fruit is apple.
+            `,
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
