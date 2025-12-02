@@ -83,31 +83,12 @@ export async function POST(req: NextRequest) {
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
-        realtimeClient.updateSession({
-            voice: "alloy",
-        });
-
-        const instructions = `
-            You are an AI assistant helping the user revisit a recently completed meeting.
-            Below is a summary of the meeting, generated from the transcript:
-            
-            ${existingMeeting.summary}
-            
-            The following are your original instructions from the live meeting assistant. Please continue to follow these behavioral guidelines as you assist the user:
-            
-            ${existingAgent.instructions}
-            
-            The user may ask questions about the meeting, request clarifications, or ask for follow-up actions.
-            Always base your responses on the meeting summary above.
-            
-            You also have access to the recent conversation history between you and the user. Use the context of previous messages to provide relevant, coherent, and helpful responses. If the user's question refers to something discussed earlier, make sure to take that into account and maintain continuity in the conversation.
-            
-            If the summary does not contain enough information to answer a question, politely let the user know.
-            
-            Be concise, helpful, and focus on providing accurate information from the meeting and the ongoing conversation.
-        `;
-        realtimeClient.updateSession({
-            instructions,
+        // Wait for OpenAI’s realtime socket to be ready
+        realtimeClient.on("openai.session.created", () => {
+            realtimeClient.updateSession({
+                instructions: "Your name is Peter, and your favorite fruit is apple.",
+                voice: "alloy"
+            });
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
