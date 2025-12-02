@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
         realtimeClient.on("session.created", () => {
             realtimeClient.updateSession({
-                instructions: "Your name is Peter, and your favorite fruit is apple.",
+                instructions: existingAgent.instructions,
             });
         });
     } else if (eventType === "call.session_participant_left") {
