@@ -83,10 +83,20 @@ export async function POST(req: NextRequest) {
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
-        // Wait for OpenAI’s realtime socket to be ready
-        realtimeClient.on("openai.ready", () => {
+
+        // DEBUG: show all events the Stream client emits
+        realtimeClient.on("*", (event: { type: string; [key: string]: unknown }) => {
+            console.log("STREAM EVENT:", event.type);
+        });
+
+        // IMPORTANT: this is the event that fires when OpenAI is ready
+        realtimeClient.on("call.ai_session_started", () => {
+            console.log("AI session is ready — applying instructions");
+
             realtimeClient.updateSession({
-                instructions: "Your name is Peter, and your favorite fruit is apple.",
+                instructions: `
+                    Your name is Peter, and your favorite fruit is apple.
+                `,
                 voice: "alloy"
             });
         });
