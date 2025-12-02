@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
             agentUserId: existingAgent.id,
         });
         // Wait for OpenAI’s realtime socket to be ready
-        realtimeClient.on("openai.session.created", () => {
+        realtimeClient.on("openai.ready", () => {
             realtimeClient.updateSession({
                 instructions: "Your name is Peter, and your favorite fruit is apple.",
                 voice: "alloy"
