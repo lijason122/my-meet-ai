@@ -17,6 +17,12 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
+export const config = {
+  runtime: 'edge'
+}
+
+export const runtime = 'edge';
+
 const openaiClient = new OpenAI();
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
@@ -84,21 +90,8 @@ export async function POST(req: NextRequest) {
             agentUserId: existingAgent.id,
         });
 
-        // DEBUG: show all events the Stream client emits
-        realtimeClient.on("*", (event: { type: string; [key: string]: unknown }) => {
-            console.log("STREAM EVENT:", event.type);
-        });
-
-        // IMPORTANT: this is the event that fires when OpenAI is ready
-        realtimeClient.on("call.ai_session_started", () => {
-            console.log("AI session is ready — applying instructions");
-
-            realtimeClient.updateSession({
-                instructions: `
-                    Your name is Peter, and your favorite fruit is apple.
-                `,
-                voice: "alloy"
-            });
+        realtimeClient.updateSession({
+            instructions: "Your name is Peter, and your favorite fruit is apple.",
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
