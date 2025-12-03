@@ -13,11 +13,10 @@ import {
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
+import { streamServer } from "@/lib/server/stream-video-server";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
-
-console.log("Runtime:", process.release);
 
 export const runtime = "nodejs";
 
@@ -81,8 +80,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        const call = streamVideo.video.call("default", meetingId);
-        const realtimeClient = await streamVideo.video.connectOpenAi({
+        const call = streamServer.video.call("default", meetingId);
+        const realtimeClient = await streamServer.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
@@ -94,8 +93,6 @@ export async function POST(req: NextRequest) {
             instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
             voice: "alloy",
         });
-
-        console.log("AI Session Updated");
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
