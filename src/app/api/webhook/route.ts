@@ -17,6 +17,8 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
+export const runtime = "nodejs";
+
 const openaiClient = new OpenAI();
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
@@ -84,8 +86,15 @@ export async function POST(req: NextRequest) {
             agentUserId: existingAgent.id,
         });
 
-        realtimeClient.updateSession({
-            instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
+        realtimeClient.on("openai.session.created", async () => {
+            console.log("AI Session Created");
+
+            await realtimeClient.updateSession({
+                instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
+                voice: "alloy",
+            });
+
+            console.log("AI Session Updated");
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
