@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import {
@@ -26,7 +25,7 @@ function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     const signature = req.headers.get("x-signature");
     const apiKey = req.headers.get("x-api-key");
 
