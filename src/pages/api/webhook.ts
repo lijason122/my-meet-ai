@@ -14,7 +14,7 @@ import {
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
-import { streamServerClient } from "@/lib/server/stream-server-client";
+import { streamServerClient } from "../../../server/stream";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
