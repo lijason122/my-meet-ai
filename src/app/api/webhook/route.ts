@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import {
     MessageNewEvent,
@@ -17,16 +17,13 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 const openaiClient = new OpenAI();
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     const signature = req.headers.get("x-signature");
     const apiKey = req.headers.get("x-api-key");
 
