@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
     };
 
     const eventType = (payload as Record<string, unknown>)?.type;
-    console.log("Webhook event type:", eventType);
-    if (eventType === "call.ai_session_started") {
+
+    if (eventType === "call.session_started") {
         const event = payload as CallSessionStartedEvent;
         const meetingId = event.call.custom?.meetingId;
 
