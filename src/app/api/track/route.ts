@@ -1,0 +1,10 @@
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  const body = await req.json();
+
+  console.log("SERVER: received event", body);
+
+  // Simulate sending to analytics provider
+  return NextResponse.json({ ok: true });
+}
