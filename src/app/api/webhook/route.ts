@@ -1,3 +1,4 @@
+import "server-only";
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -13,7 +14,6 @@ import {
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
-import { streamServer } from "@/lib/server/stream-video-server";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
@@ -80,18 +80,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        const call = streamServer.video.call("default", meetingId);
-        const realtimeClient = await streamServer.video.connectOpenAi({
+        const call = streamVideo.video.call("default", meetingId);
+        const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
 
-        console.log("AI Session Created");
-
         await realtimeClient.updateSession({
             instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
             voice: "alloy",
+        });
+
+        realtimeClient.on("session.updated", (ev: { session: { instructions: unknown; }; }) => {
+            console.log("Session updated:", ev.session.instructions);
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
