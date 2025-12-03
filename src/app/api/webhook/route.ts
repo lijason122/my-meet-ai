@@ -86,13 +86,12 @@ export async function POST(req: NextRequest) {
 
         console.log("AI Session Created");
 
-        await realtimeClient.sendUserMessageContent([
-            {
-                type: "input_text",
-                text: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
-            }
-        ]);
+        await realtimeClient.updateSession({
+            instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
+            voice: "alloy",
+        });
 
+        console.log("AI Session Updated");
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
