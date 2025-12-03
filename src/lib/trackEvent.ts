@@ -5,7 +5,7 @@ export type TrackEventName =
 
 export interface TrackEventPayload {
   name: TrackEventName;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 export async function trackEvent(event: TrackEventPayload) {
