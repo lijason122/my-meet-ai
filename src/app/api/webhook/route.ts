@@ -17,6 +17,8 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
+export const runtime = "nodejs";
+
 const openaiClient = new OpenAI();
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
