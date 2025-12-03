@@ -18,6 +18,7 @@ import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const openaiClient = new OpenAI();
 
