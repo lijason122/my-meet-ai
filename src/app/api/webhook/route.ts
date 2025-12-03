@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
     };
 
     const eventType = (payload as Record<string, unknown>)?.type;
-
-    if (eventType === "call.session_started") {
+    console.log("Webhook event type:", eventType);
+    if (eventType === "call.ai_session_started") {
         const event = payload as CallSessionStartedEvent;
         const meetingId = event.call.custom?.meetingId;
 
@@ -87,16 +87,14 @@ export async function POST(req: NextRequest) {
             agentUserId: existingAgent.id,
         });
 
-        realtimeClient.on("openai.session.created", async () => {
-            console.log("AI Session Created");
+        console.log("AI Session Created");
 
-            await realtimeClient.updateSession({
-                instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
-                voice: "alloy",
-            });
-
-            console.log("AI Session Updated");
+        await realtimeClient.updateSession({
+            instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
+            voice: "alloy",
         });
+
+        console.log("AI Session Updated");
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
