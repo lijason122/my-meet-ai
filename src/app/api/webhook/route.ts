@@ -1,7 +1,7 @@
 import "server-only";
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import {
     MessageNewEvent,
@@ -14,6 +14,7 @@ import {
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
+import { streamServerClient } from "@/lib/server/stream-server-client";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
@@ -21,7 +22,6 @@ import { streamChat } from "@/lib/stream-chat";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-console.log("[Webhook Loaded]");
 
 const openaiClient = new OpenAI();
 
@@ -29,7 +29,8 @@ function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
+    console.log("[Webhook Loaded]");
     const signature = req.headers.get("x-signature");
     const apiKey = req.headers.get("x-api-key");
 
@@ -83,9 +84,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        const call = streamVideo.video.call("default", meetingId);
+        const call = streamServerClient.video.call("default", meetingId);
         console.log("[Webhook] Connecting OpenAI agent...");
-        const realtimeClient = await streamVideo.video.connectOpenAi({
+        const realtimeClient = await streamServerClient.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
