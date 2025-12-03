@@ -84,11 +84,9 @@ export async function POST(req: NextRequest) {
             agentUserId: existingAgent.id,
         });
 
-        realtimeClient.on("*", (event: { type: string; [key: string]: unknown }) => console.log(event.type));
         realtimeClient.on("call.openai_session_started", () => {
             realtimeClient.updateSession({
-                instructions: "Your name is Peter, and your favorite fruit is apple.",
-                voice: "alloy"
+                instructions: existingAgent.instructions,
             });
         });
     } else if (eventType === "call.session_participant_left") {
