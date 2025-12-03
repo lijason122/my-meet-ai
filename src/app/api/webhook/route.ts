@@ -18,7 +18,10 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+console.log("[Webhook Loaded]");
 
 const openaiClient = new OpenAI();
 
