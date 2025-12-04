@@ -59,10 +59,6 @@ export async function POST(req: NextRequest) {
 
         const [existingMeeting] = await db.select().from(meetings).where(and(
             eq(meetings.id, meetingId),
-            not(eq(meetings.status, "completed")),
-            not(eq(meetings.status, "active")),
-            not(eq(meetings.status, "cancelled")),
-            not(eq(meetings.status, "processing")),
         ));
 
         if (!existingMeeting) {
