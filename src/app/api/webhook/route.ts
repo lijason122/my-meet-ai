@@ -59,10 +59,10 @@ export async function POST(req: NextRequest) {
 
         const [existingMeeting] = await db.select().from(meetings).where(and(
             eq(meetings.id, meetingId),
+            eq(meetings.status, "upcoming"),
         ));
 
         if (!existingMeeting) {
-            console.log(`[Webhook] meeting not found for id=${meetingId}`);
             return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
         }
 
@@ -78,16 +78,17 @@ export async function POST(req: NextRequest) {
         }
 
         const call = streamVideo.video.call("default", meetingId);
+        console.log(`[Webhook] Connecting`);
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
-
-        console.log(`[Webhook] ${existingAgent.instructions}`);
+        console.log(`[OpenAI connected]`);
         realtimeClient.updateSession({
             instructions: existingAgent.instructions,
         });
+        console.log(`[Instructions updated] ${existingAgent.instructions}`);
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
