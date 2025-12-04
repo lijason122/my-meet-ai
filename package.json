@@ -76,7 +76,7 @@
     "openai": "^6.9.1",
     "react": "^19.2.1",
     "react-day-picker": "^9.11.0",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.2.1",
     "react-error-boundary": "^6.0.0",
     "react-highlight-words": "^0.21.0",
     "react-hook-form": "^7.64.0",
