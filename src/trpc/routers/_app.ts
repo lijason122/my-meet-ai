@@ -1,3 +1,5 @@
+import "server-only";
+
 import { agentsRouter } from '@/modules/agents/server/procedures';
 import { createTRPCRouter } from '../init';
 import { meetingsRouter } from '@/modules/meetings/server/procedures';
