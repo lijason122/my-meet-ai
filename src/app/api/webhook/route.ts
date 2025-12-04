@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import {
     MessageNewEvent,
@@ -23,7 +23,7 @@ function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     const signature = req.headers.get("x-signature");
     const apiKey = req.headers.get("x-api-key");
 
@@ -50,7 +50,6 @@ export async function POST(req: Request) {
     const eventType = (payload as Record<string, unknown>)?.type;
 
     if (eventType === "call.session_started") {
-        console.log("[Webhook Loaded]");
         const event = payload as CallSessionStartedEvent;
         const meetingId = event.call.custom?.meetingId;
 
@@ -79,20 +78,16 @@ export async function POST(req: Request) {
         }
 
         const call = streamVideo.video.call("default", meetingId);
-        console.log("[Webhook] Connecting OpenAI agent...");
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
-        console.log("[Webhook] Connected, updating session...");
 
-        await realtimeClient.updateSession({
-            instructions: "Your favorite fruit is kiwi. You can call yourself John if the user asks you.",
-            voice: "alloy",
+        console.log(`[Webhook] ${existingAgent.instructions}`);
+        realtimeClient.updateSession({
+            instructions: existingAgent.instructions,
         });
-
-        console.log("[Webhook] Session updated");
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
