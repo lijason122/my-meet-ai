@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { and, eq } from "drizzle-orm";
+import { and, eq, not } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import {
@@ -59,7 +59,10 @@ export async function POST(req: NextRequest) {
 
         const [existingMeeting] = await db.select().from(meetings).where(and(
             eq(meetings.id, meetingId),
-            eq(meetings.status, "upcoming"),
+            not(eq(meetings.status, "completed")),
+            not(eq(meetings.status, "active")),
+            not(eq(meetings.status, "cancelled")),
+            not(eq(meetings.status, "processing")),
         ));
 
         if (!existingMeeting) {
