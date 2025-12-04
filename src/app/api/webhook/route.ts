@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
     const eventType = (payload as Record<string, unknown>)?.type;
 
     if (eventType === "call.session_started") {
+        console.log(`[Webhook] Call Started`);
         const event = payload as CallSessionStartedEvent;
         const meetingId = event.call.custom?.meetingId;
 
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
         if (!existingMeeting) {
             return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
         }
+        console.log(`[Webhook] Meeting found`);
 
         await db.update(meetings).set({
             status: "active",
@@ -74,8 +76,10 @@ export async function POST(req: NextRequest) {
         const [existingAgent] = await db.select().from(agents).where(eq(agents.id, existingMeeting.agentId));
 
         if (!existingAgent) {
+            console.log(`[Webhook] Agent not found`);
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
+        console.log(`[Webhook] Start`);
 
         const call = streamVideo.video.call("default", meetingId);
         console.log(`[Webhook] Connecting`);
