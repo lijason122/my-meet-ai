@@ -12,7 +12,7 @@ import {
 } from "@stream-io/node-sdk";
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
-import { streamVideo } from "@/lib/stream-video";
+import { streamVideo } from "@/lib/stream-video-server";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
