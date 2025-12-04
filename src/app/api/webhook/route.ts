@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
     };
 
     const body = await req.text();
+    console.log(`[Webhook] headers: x-signature=${!!signature}, x-api-key=${!!apiKey}, bodyLength=${body.length}`);
 
     if (!verifySignatureWithSDK(body, signature)) {
         return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
     };
 
     const eventType = (payload as Record<string, unknown>)?.type;
+    console.log(`[Webhook] eventType: ${String(eventType)}`);
 
     if (eventType === "call.session_started") {
         const event = payload as CallSessionStartedEvent;
@@ -57,15 +59,18 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
         };
 
+        console.log(`[Webhook] call.session_started meetingId=${meetingId}`);
         const [existingMeeting] = await db.select().from(meetings).where(and(
             eq(meetings.id, meetingId),
             eq(meetings.status, "upcoming"),
         ));
 
         if (!existingMeeting) {
+            console.log(`[Webhook] meeting not found for id=${meetingId}`);
             return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
         }
 
+        console.log(`[Webhook] updating meeting ${existingMeeting.id} status from ${existingMeeting.status} -> active`);
         await db.update(meetings).set({
             status: "active",
             startedAt: new Date(),
@@ -74,6 +79,7 @@ export async function POST(req: NextRequest) {
         const [existingAgent] = await db.select().from(agents).where(eq(agents.id, existingMeeting.agentId));
 
         if (!existingAgent) {
+            console.log(`[Webhook] agent not found for meetingId=${existingMeeting.id}, agentId=${existingMeeting.agentId}`);
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
