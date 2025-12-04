@@ -77,12 +77,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
-        const call = streamVideo.video.call("default", meetingId);
-        await streamVideo.video.connectOpenAi({
-            call,
-            openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.id,
-        });
+        // const call = streamVideo.video.call("default", meetingId);
+        // const realtimeClient = await streamVideo.video.connectOpenAi({
+        //     call,
+        //     openAiApiKey: process.env.OPENAI_API_KEY!,
+        //     agentUserId: existingAgent.id,
+        // });
 
         // console.log(`[Webhook] ${existingAgent.instructions}`);
         // realtimeClient.updateSession({
