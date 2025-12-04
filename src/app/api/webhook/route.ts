@@ -78,16 +78,16 @@ export async function POST(req: NextRequest) {
         }
 
         const call = streamVideo.video.call("default", meetingId);
-        const realtimeClient = await streamVideo.video.connectOpenAi({
+        await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
         });
 
-        console.log(`[Webhook] ${existingAgent.instructions}`);
-        realtimeClient.updateSession({
-            instructions: existingAgent.instructions,
-        });
+        // console.log(`[Webhook] ${existingAgent.instructions}`);
+        // realtimeClient.updateSession({
+        //     instructions: existingAgent.instructions,
+        // });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
