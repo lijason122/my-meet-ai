@@ -81,13 +81,13 @@ export async function POST(req: NextRequest) {
         }
         console.log(`[Webhook] Start`);
 
-        const call = streamVideo.video.call("default", meetingId);
+        streamVideo.video.call("default", meetingId);
         console.log(`[Webhook] Connecting`);
-        await streamVideo.video.connectOpenAi({
-            call,
-            openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.id,
-        });
+        // const realtimeClient = await streamVideo.video.connectOpenAi({
+        //     call,
+        //     openAiApiKey: process.env.OPENAI_API_KEY!,
+        //     agentUserId: existingAgent.id,
+        // });
         console.log(`[OpenAI connected]`);
         // realtimeClient.updateSession({
         //     instructions: existingAgent.instructions,
