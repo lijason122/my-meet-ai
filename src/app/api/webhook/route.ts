@@ -221,10 +221,7 @@ export async function POST(req: NextRequest) {
                     image: avatarUrl,
                 },
             });
-        }
-
-        if (event.message?.user?.id === existingAgent.id) {
-            return NextResponse.json({ status: "ignored_bot_message" });
+            console.log(`[Message sent]: ${GPTResponseText}`);
         }
     };
 
