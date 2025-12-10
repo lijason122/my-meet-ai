@@ -20,6 +20,14 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
+type RealtimeEvent = {
+    event: {
+        type: string;
+        [key: string]: unknown;
+    };
+};
+
+
 const openaiClient = new OpenAI();
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
@@ -82,20 +90,45 @@ export async function POST(req: NextRequest) {
             console.log(`[Webhook] Agent not found`);
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
-        console.log(`[Webhook] Start`);
-
         const call = streamVideo.video.call("default", meetingId);
-        console.log(`[Webhook] Connecting`);
+        console.log("[Webhook] Calling connectOpenAi...");
+
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
+            model: "gpt-4o-realtime-preview",
         });
-        console.log(`[OpenAI connected]`);
-        realtimeClient.updateSession({
+
+        console.log("[Webhook] connectOpenAi SUCCESS. Updating session...");
+
+        await realtimeClient.updateSession({
             instructions: existingAgent.instructions,
+            voice: "alloy",
+            turn_detection: { type: "server_vad" },
         });
-        console.log(`[Instructions updated] ${existingAgent.instructions}`);
+
+        // Debug: log realtime events
+        realtimeClient.on("realtime.event", ({ event }: RealtimeEvent) => {
+            console.log("[OpenAI realtime.event]", event.type);
+        });
+
+        realtimeClient.on(
+            "conversation.item.input_audio_transcription_completed",
+            ({ event }: RealtimeEvent) => {
+            console.log("[AI] User said:", event.transcript);
+            },
+        );
+
+        realtimeClient.on("conversation.item.created", (e: RealtimeEvent) => {
+            console.log("[AI] Item created:", e);
+        });
+
+        realtimeClient.on("error", (err: RealtimeEvent) => {
+            console.error("[AI] Realtime error:", err);
+        });
+
+        console.log("[Webhook] Agent setup complete!");
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
