@@ -149,7 +149,6 @@ export async function POST(req: NextRequest) {
         }
 
         if (processedMessages.has(messageId)) {
-            console.log("[Webhook] Duplicate message.new ignored:", messageId);
             return NextResponse.json({ status: "duplicate_ignored" });
         }
         processedMessages.add(messageId);
