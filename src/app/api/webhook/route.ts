@@ -186,9 +186,11 @@ export async function POST(req: NextRequest) {
             `;
 
             const channel = streamChat.channel("messaging", channelId);
-            await channel.watch();
+            const { messages } = await channel.query({
+                messages: { limit: 10 },
+            });
 
-            const previousMessages = channel.state.messages.slice(-5).filter((msg) => msg.text && msg.text.trim() !== "")
+            const previousMessages = messages.filter((msg) => msg.text && msg.text.trim() !== "").slice(-5)
                 .map<ChatCompletionMessageParam>((message) => ({
                     role: message.user?.id === existingAgent.id ? "assistant" : "user",
                     content: message.text || "",
