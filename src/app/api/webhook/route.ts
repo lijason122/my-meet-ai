@@ -140,14 +140,9 @@ export async function POST(req: NextRequest) {
         const userId = event.user?.id;
         const channelId = event.channel_id;
         const text = event.message?.text;
-        const type = event.message?.type;
 
         if (!userId || !channelId || !text) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-        }
-
-        if (type !== "regular") {
-            return NextResponse.json({ status: "ignored" });
         }
 
         const [existingMeeting] = await db.select().from(meetings).where(and(
@@ -226,6 +221,10 @@ export async function POST(req: NextRequest) {
                     image: avatarUrl,
                 },
             });
+        }
+
+        if (event.message?.user?.id === existingAgent.id) {
+            return NextResponse.json({ status: "ignored_bot_message" });
         }
     };
 
