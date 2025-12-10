@@ -1,6 +1,3 @@
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
