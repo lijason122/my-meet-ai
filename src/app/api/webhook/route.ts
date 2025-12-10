@@ -19,6 +19,8 @@ import { streamChat } from "@/lib/stream-chat";
 
 const openaiClient = new OpenAI();
 
+const processedMessages = new Set<string>();
+
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
 };
@@ -140,6 +142,17 @@ export async function POST(req: NextRequest) {
         const userId = event.user?.id;
         const channelId = event.channel_id;
         const text = event.message?.text;
+        const messageId = event.message?.id;
+
+        if (!messageId) {
+            return NextResponse.json({ status: "ignored_no_id" });
+        }
+
+        if (processedMessages.has(messageId)) {
+            console.log("[Webhook] Duplicate message.new ignored:", messageId);
+            return NextResponse.json({ status: "duplicate_ignored" });
+        }
+        processedMessages.add(messageId);
 
         if (!userId || !channelId || !text) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -158,10 +171,6 @@ export async function POST(req: NextRequest) {
 
         if (!existingAgent) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
-        }
-
-        if (!userId || userId === existingAgent.id) {
-            return NextResponse.json({ status: "ignored" });
         }
 
         if (userId !== existingAgent.id) {
@@ -186,11 +195,9 @@ export async function POST(req: NextRequest) {
             `;
 
             const channel = streamChat.channel("messaging", channelId);
-            const { messages } = await channel.query({
-                messages: { limit: 10 },
-            });
+            await channel.watch();
 
-            const previousMessages = messages.filter((msg) => msg.text && msg.text.trim() !== "").slice(-5)
+            const previousMessages = channel.state.messages.slice(-5).filter((msg) => msg.text && msg.text.trim() !== "")
                 .map<ChatCompletionMessageParam>((message) => ({
                     role: message.user?.id === existingAgent.id ? "assistant" : "user",
                     content: message.text || "",
