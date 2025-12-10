@@ -160,6 +160,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Agent not found" }, { status: 404 });
         }
 
+        if (!userId || userId === existingAgent.id) {
+            return NextResponse.json({ status: "ignored" });
+        }
+
         if (userId !== existingAgent.id) {
             const instructions = `
                 You are an AI assistant helping the user revisit a recently completed meeting.
@@ -221,7 +225,6 @@ export async function POST(req: NextRequest) {
                     image: avatarUrl,
                 },
             });
-            console.log(`[Message sent]: ${GPTResponseText}`);
         }
     };
 
