@@ -104,8 +104,6 @@ export async function POST(req: NextRequest) {
 
         await realtimeClient.updateSession({
             instructions: existingAgent.instructions,
-            voice: "alloy",
-            turn_detection: { type: "server_vad" },
         });
 
         // Debug: log realtime events
