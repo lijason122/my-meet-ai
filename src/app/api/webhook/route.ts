@@ -20,14 +20,6 @@ import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
-type RealtimeEvent = {
-    event: {
-        type: string;
-        [key: string]: unknown;
-    };
-};
-
-
 const openaiClient = new OpenAI();
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
@@ -97,36 +89,16 @@ export async function POST(req: NextRequest) {
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
-            model: "gpt-4o-realtime-preview",
         });
 
-        console.log("[Webhook] connectOpenAi SUCCESS. Updating session...");
-
-        await realtimeClient.updateSession({
+        realtimeClient.updateSession({
             instructions: existingAgent.instructions,
-        });
-
-        // Debug: log realtime events
-        realtimeClient.on("realtime.event", ({ event }: RealtimeEvent) => {
-            console.log("[OpenAI realtime.event]", event.type);
-        });
-
-        realtimeClient.on(
-            "conversation.item.input_audio_transcription_completed",
-            ({ event }: RealtimeEvent) => {
-            console.log("[AI] User said:", event.transcript);
+            input_audio_transcription: {
+                model: "whisper-1",
             },
-        );
-
-        realtimeClient.on("conversation.item.created", (e: RealtimeEvent) => {
-            console.log("[AI] Item created:", e);
+            voice: "alloy",
+            turn_detection: { type: "server_vad" },
         });
-
-        realtimeClient.on("error", (err: RealtimeEvent) => {
-            console.error("[AI] Realtime error:", err);
-        });
-
-        console.log("[Webhook] Agent setup complete!");
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
