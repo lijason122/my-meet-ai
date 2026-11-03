@@ -10,6 +10,7 @@ import {
     CallSessionParticipantLeftEvent,
     CallSessionStartedEvent,
 } from "@stream-io/node-sdk";
+import { createRealtimeClient } from "@stream-io/openai-realtime-api";
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
@@ -80,17 +81,31 @@ export async function POST(req: NextRequest) {
         }
         
         const call = streamVideo.video.call("default", meetingId);
-        const realtimeClient = await streamVideo.video.connectOpenAi({
+        const realtimeClient = createRealtimeClient({
+            baseUrl: streamVideo.video.apiClient.apiConfig.baseUrl,
             call,
+            streamApiKey: streamVideo.apiKey,
+            streamUserToken: streamVideo.generateCallToken({
+                user_id: existingAgent.id,
+                call_cids: [call.cid],
+            }),
             openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.id,
         });
-        realtimeClient.updateSession({
-            instructions: existingAgent.instructions,
-            input_audio_transcription: {
-                model: "whisper-1",
+
+        await realtimeClient.realtime.connect();
+        realtimeClient.realtime.send("session.update", {
+            session: {
+                type: "realtime",
+                output_modalities: ["audio"],
+                instructions: existingAgent.instructions,
+                audio: {
+                    input: {
+                        transcription: { model: "whisper-1" },
+                        turn_detection: { type: "server_vad" },
+                    },
+                    output: { voice: "verse" },
+                },
             },
-            turn_detection: { type: "server_vad" },
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
