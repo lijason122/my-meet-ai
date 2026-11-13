@@ -22,7 +22,7 @@ const openaiClient = new OpenAI();
 
 const processedMessages = new Set<string>();
 
-export const maxDuration = 800;
+export const maxDuration = 300;
 
 const REALTIME_CONNECTION_TIMEOUT_MS = 790_000;
 
