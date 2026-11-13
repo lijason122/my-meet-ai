@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import {
     MessageNewEvent,
@@ -21,6 +21,10 @@ import { streamChat } from "@/lib/stream-chat";
 const openaiClient = new OpenAI();
 
 const processedMessages = new Set<string>();
+
+export const maxDuration = 800;
+
+const REALTIME_CONNECTION_TIMEOUT_MS = 790_000;
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
@@ -92,6 +96,10 @@ export async function POST(req: NextRequest) {
             openAiApiKey: process.env.OPENAI_API_KEY!,
         });
 
+        const connectionClosed = new Promise<void>((resolve) => {
+            realtimeClient.realtime.on("close", () => resolve());
+        });
+
         await realtimeClient.realtime.connect();
         realtimeClient.realtime.send("session.update", {
             session: {
@@ -106,6 +114,22 @@ export async function POST(req: NextRequest) {
                     output: { voice: "verse" },
                 },
             },
+        });
+
+        after(async () => {
+            let timeout: ReturnType<typeof setTimeout> | undefined;
+
+            try {
+                await Promise.race([
+                    connectionClosed,
+                    new Promise<void>((resolve) => {
+                        timeout = setTimeout(resolve, REALTIME_CONNECTION_TIMEOUT_MS);
+                    }),
+                ]);
+            } finally {
+                if (timeout) clearTimeout(timeout);
+                realtimeClient.disconnect();
+            }
         });
     } else if (eventType === "call.session_participant_left") {
         const event = payload as CallSessionParticipantLeftEvent;
